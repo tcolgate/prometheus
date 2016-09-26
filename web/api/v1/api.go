@@ -216,6 +216,33 @@ func (api *API) queryRange(r *http.Request) (interface{}, *apiError) {
 		}
 		return nil, &apiError{errorExec, res.Err}
 	}
+
+	dwnstr, nstr := r.FormValue("downsample"), r.FormValue("samples")
+
+	var dwn DownsamplerFunc
+	switch dwnstr {
+	case "lttb":
+		dwn = downsampleLTTB
+	case "":
+		nstr = "0"
+	default:
+		return nil, &apiError{errorBadData, fmt.Errorf("unknown downsampler %s", dwnstr)}
+	}
+
+	n, err := strconv.Atoi(nstr)
+	if err != nil || (dwn != nil && n < 2) {
+		return nil, &apiError{errorBadData, fmt.Errorf("invalid sample count %s", nstr)}
+	}
+
+	fmt.Printf("downsample %v %d %#v\n", dwn, n, res)
+	if mx, err := res.Matrix(); err == nil {
+		for i := range mx {
+			mx[i].Values = dwn(mx[i].Values, n)
+		}
+	} else {
+		// Can this ever be non-nill?
+	}
+
 	return &queryData{
 		ResultType: res.Value.Type(),
 		Result:     res.Value,
