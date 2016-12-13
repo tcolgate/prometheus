@@ -105,7 +105,9 @@ const (
 // interval and acted upon (currently either recorded or used for alerting).
 type Rule interface {
 	Name() string
-	// eval evaluates the rule, including any associated recording or alerting actions.
+	// Expr returns the underlying expression used in the rule
+	Expr() promql.Expr
+	// Eval evaluates the rule, including any associated recording or alerting actions.
 	Eval(context.Context, model.Time, *promql.Engine, string) (model.Vector, error)
 	// String returns a human-readable string representation of the rule.
 	String() string

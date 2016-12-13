@@ -116,6 +116,11 @@ func (r *AlertingRule) Name() string {
 	return r.name
 }
 
+// Expr returns the rule expression.
+func (r *AlertingRule) Expr() promql.Expr {
+	return r.vector
+}
+
 func (r *AlertingRule) equal(o *AlertingRule) bool {
 	return r.name == o.name && r.labels.Equal(o.labels)
 }
